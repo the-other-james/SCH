@@ -122,7 +122,7 @@ SCH_AppData_t           SCH_AppData;
 void SCH_AppMain(void)
 {
     int32  Status    = CFE_SUCCESS;
-    uint32 RunStatus = CFE_ES_APP_RUN;
+    uint32 RunStatus = CFE_ES_RunStatus_APP_RUN;
 
     /*
     ** Performance Log (start time counter)
@@ -148,7 +148,7 @@ void SCH_AppMain(void)
         Status = SCH_CustomLateInit();
         if (Status != CFE_SUCCESS)
         {
-            CFE_EVS_SendEvent(SCH_MAJOR_FRAME_SUB_ERR_EID, CFE_EVS_ERROR,
+            CFE_EVS_SendEvent(SCH_MAJOR_FRAME_SUB_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Error initializing Timers (RC=0x%08X)", 
                               (unsigned int)Status);    
         }
@@ -162,7 +162,7 @@ void SCH_AppMain(void)
         /*
         ** Set request to terminate main loop
         */
-        RunStatus = CFE_ES_APP_ERROR;
+        RunStatus = CFE_ES_RunStatus_APP_ERROR;
     }
 
     /*
@@ -188,19 +188,19 @@ void SCH_AppMain(void)
         /*
         ** Report if during the previous frame the major has determined to be unstable
         */
-        if (SCH_AppData.IgnoreMajorFrame == TRUE)
+        if (SCH_AppData.IgnoreMajorFrame == true)
         {
-            if (SCH_AppData.IgnoreMajorFrameMsgSent == FALSE)
+            if (SCH_AppData.IgnoreMajorFrameMsgSent == false)
             {
-                CFE_EVS_SendEvent(SCH_NOISY_MAJOR_FRAME_ERR_EID, CFE_EVS_ERROR, 
+                CFE_EVS_SendEvent(SCH_NOISY_MAJOR_FRAME_ERR_EID, CFE_EVS_EventType_ERROR, 
                                   "Major Frame Sync too noisy (Slot %d). Disabling synchronization.", 
                                   SCH_AppData.MinorFramesSinceTone);
-                SCH_AppData.IgnoreMajorFrameMsgSent = TRUE;
+                SCH_AppData.IgnoreMajorFrameMsgSent = true;
             }
         }
         else
         {
-            SCH_AppData.IgnoreMajorFrameMsgSent = FALSE;
+            SCH_AppData.IgnoreMajorFrameMsgSent = false;
         }
 
         /*
@@ -208,7 +208,7 @@ void SCH_AppMain(void)
         */
 #if SCH_LIB_PRESENCE == 1
         if ((Status == OS_SUCCESS) &&
-            (SCH_GetProcessingState() == TRUE))
+            (SCH_GetProcessingState() == true))
         {
             Status = SCH_ProcessScheduleTable();
         }
@@ -229,7 +229,7 @@ void SCH_AppMain(void)
             /*
             ** Set request to terminate main loop
             */
-            RunStatus = CFE_ES_APP_ERROR;
+            RunStatus = CFE_ES_RunStatus_APP_ERROR;
         }
 
     } /* End of while */
@@ -242,7 +242,7 @@ void SCH_AppMain(void)
         /*
         ** Send an event describing the reason for the termination
         */
-        CFE_EVS_SendEvent(SCH_APP_EXIT_EID, CFE_EVS_CRITICAL, 
+        CFE_EVS_SendEvent(SCH_APP_EXIT_EID, CFE_EVS_EventType_CRITICAL, 
                           "SCH App: terminating, err = 0x%08X", (unsigned int)Status);
 
         /*
@@ -343,7 +343,7 @@ int32 SCH_AppInit(void)
     ** Application startup event message
     */
     Status = CFE_EVS_SendEvent(SCH_INITSTATS_INF_EID,
-                               CFE_EVS_INFORMATION,
+                               CFE_EVS_EventType_INFORMATION,
                                "SCH Initialized. Version %d.%d.%d.%d",
                                SCH_MAJOR_VERSION,
                                SCH_MINOR_VERSION,
@@ -384,7 +384,7 @@ int32 SCH_EvsInit(void)
     /*
     ** Register for event services
     */
-    Status = CFE_EVS_Register(SCH_AppData.EventFilters, SCH_FILTER_COUNT, CFE_EVS_BINARY_FILTER);
+    Status = CFE_EVS_Register(SCH_AppData.EventFilters, SCH_FILTER_COUNT, CFE_EVS_EventFilter_BINARY);
     if (Status != CFE_SUCCESS)
     {
         CFE_ES_WriteToSysLog("SCH App: Error Registering For Event Services, RC=0x%08X\n", (unsigned int)Status);
@@ -412,12 +412,12 @@ int32 SCH_SbInit(void)
     /*
     ** Initialize housekeeping packet (clear user data area)
     */
-    CFE_SB_InitMsg(&SCH_AppData.HkPacket, SCH_HK_TLM_MID, sizeof(SCH_HkPacket_t), TRUE);
+    CFE_SB_InitMsg(&SCH_AppData.HkPacket, SCH_HK_TLM_MID, sizeof(SCH_HkPacket_t), true);
     
     /*
     ** Initialize diagnostic packet (clear user data area)
     */
-    CFE_SB_InitMsg(&SCH_AppData.DiagPacket, SCH_DIAG_TLM_MID, sizeof(SCH_DiagPacket_t), TRUE);
+    CFE_SB_InitMsg(&SCH_AppData.DiagPacket, SCH_DIAG_TLM_MID, sizeof(SCH_DiagPacket_t), true);
 
     /*
     ** Create Software Bus message pipe
@@ -425,7 +425,7 @@ int32 SCH_SbInit(void)
     Status = CFE_SB_CreatePipe(&SCH_AppData.CmdPipe, SCH_PIPE_DEPTH, SCH_PIPE_NAME);
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_CR_PIPE_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_CR_PIPE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error Creating SB Pipe, RC=0x%08X", (unsigned int)Status);
         return(Status);
     }
@@ -436,7 +436,7 @@ int32 SCH_SbInit(void)
     Status = CFE_SB_Subscribe(SCH_SEND_HK_MID, SCH_AppData.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_SUB_HK_REQ_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_SUB_HK_REQ_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error Subscribing to HK Request(MID=0x%04X), RC=0x%08X", 
                           SCH_SEND_HK_MID, (unsigned int)Status);    
         return(Status);
@@ -448,7 +448,7 @@ int32 SCH_SbInit(void)
     Status = CFE_SB_Subscribe(SCH_CMD_MID, SCH_AppData.CmdPipe);
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_SUB_GND_CMD_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_SUB_GND_CMD_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error Subscribing to GND CMD(MID=0x%04X), RC=0x%08X", 
                           SCH_CMD_MID, (unsigned int)Status);    
         return(Status);
@@ -498,7 +498,7 @@ int32 SCH_TblInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_SDT_REG_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_SDT_REG_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error Registering SDT, RC=0x%08X", 
                           (unsigned int)Status);    
         return(Status);
@@ -517,7 +517,7 @@ int32 SCH_TblInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_MDT_REG_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_MDT_REG_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error Registering MDT, RC=0x%08X", 
                           (unsigned int)Status);    
         return(Status);
@@ -532,7 +532,7 @@ int32 SCH_TblInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_SDT_LOAD_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_SDT_LOAD_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error (RC=0x%08X) Loading SDT with %s", 
                           (unsigned int)Status, SCH_SCHEDULE_FILENAME);    
         return(Status);
@@ -547,7 +547,7 @@ int32 SCH_TblInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_MDT_LOAD_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_MDT_LOAD_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error (RC=0x%08X) Loading MDT with %s", 
                           (unsigned int)Status, SCH_MESSAGE_FILENAME);    
         return(Status);
@@ -561,7 +561,7 @@ int32 SCH_TblInit(void)
 
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_ACQ_PTR_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_ACQ_PTR_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error Acquiring Tbl Ptrs (RC=0x%08X)", 
                           (unsigned int)Status);    
         return(Status);
@@ -587,9 +587,9 @@ int32 SCH_TimerInit(void)
     ** Start off assuming Major Frame synch is normal
     ** and should be coming at any moment
     */
-    SCH_AppData.IgnoreMajorFrame     = FALSE;
-    SCH_AppData.IgnoreMajorFrameMsgSent = FALSE;
-    SCH_AppData.UnexpectedMajorFrame = FALSE;
+    SCH_AppData.IgnoreMajorFrame     = false;
+    SCH_AppData.IgnoreMajorFrameMsgSent = false;
+    SCH_AppData.UnexpectedMajorFrame = false;
     SCH_AppData.SyncToMET            = SCH_NOT_SYNCHRONIZED;
     SCH_AppData.MajorFrameSource     = SCH_MAJOR_FS_NONE;
     SCH_AppData.NextSlotNumber       = 0;
@@ -613,7 +613,7 @@ int32 SCH_TimerInit(void)
     
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_CREATE_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_CREATE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error creating Timer (RC=0x%08X)", 
                           (unsigned int)Status);    
         return(Status);
@@ -624,7 +624,7 @@ int32 SCH_TimerInit(void)
     */
     if (SCH_AppData.ClockAccuracy > SCH_WORST_CLOCK_ACCURACY)
     {
-        CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_ACC_WARN_EID, CFE_EVS_INFORMATION,
+        CFE_EVS_SendEvent(SCH_MINOR_FRAME_TIMER_ACC_WARN_EID, CFE_EVS_EventType_INFORMATION,
                           "OS Timer Accuracy (%d > reqd %d usec) requires Minor Frame MET sync",
                           (int)SCH_AppData.ClockAccuracy, SCH_WORST_CLOCK_ACCURACY);
         
@@ -641,7 +641,7 @@ int32 SCH_TimerInit(void)
     Status = OS_BinSemCreate(&SCH_AppData.TimeSemaphore, SCH_SEM_NAME, SCH_SEM_VALUE, SCH_SEM_OPTIONS);
     if (Status != CFE_SUCCESS)
     {
-        CFE_EVS_SendEvent(SCH_SEM_CREATE_ERR_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_SEM_CREATE_ERR_EID, CFE_EVS_EventType_ERROR,
                           "Error creating Main Loop Timing Semaphore (RC=0x%08X)", 
                           (unsigned int)Status);    
         return(Status);
@@ -732,7 +732,7 @@ int32 SCH_ProcessScheduleTable(void)
     {
         SCH_AppData.SameSlotCount++;
 
-        CFE_EVS_SendEvent(SCH_SAME_SLOT_EID, CFE_EVS_DEBUG,
+        CFE_EVS_SendEvent(SCH_SAME_SLOT_EID, CFE_EVS_EventType_DEBUG,
                           "Slot did not increment: slot = %d",
                           (int)CurrentSlot);
         ProcessCount = 0;
@@ -745,7 +745,7 @@ int32 SCH_ProcessScheduleTable(void)
     {
         SCH_AppData.SkippedSlotsCount++;
 
-        CFE_EVS_SendEvent(SCH_SKIPPED_SLOTS_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_SKIPPED_SLOTS_EID, CFE_EVS_EventType_ERROR,
                           "Slots skipped: slot = %d, count = %d",
                           SCH_AppData.NextSlotNumber, (int)(ProcessCount - 1));
 
@@ -792,7 +792,7 @@ int32 SCH_ProcessScheduleTable(void)
         /* Generate an event message if not syncing to MET or when there is more than two being processed */
         if ((ProcessCount > SCH_AppData.WorstCaseSlotsPerMinorFrame) || (SCH_AppData.SyncToMET == SCH_NOT_SYNCHRONIZED))
         {
-            CFE_EVS_SendEvent(SCH_MULTI_SLOTS_EID, CFE_EVS_INFORMATION,
+            CFE_EVS_SendEvent(SCH_MULTI_SLOTS_EID, CFE_EVS_EventType_INFORMATION,
                               "Multiple slots processed: slot = %d, count = %d",
                               SCH_AppData.NextSlotNumber, (int)ProcessCount);
         }
@@ -903,11 +903,11 @@ void SCH_ProcessNextEntry(SCH_ScheduleEntry_t *NextEntry, int32 EntryNumber)
         /*
         ** Too much data for just one event
         */
-        CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_EventType_ERROR,
                           "Corrupt data error (1): slot = %d, entry = %d",
                           SCH_AppData.NextSlotNumber, (int)EntryNumber);
 
-        CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_ERROR,
+        CFE_EVS_SendEvent(SCH_CORRUPTION_EID, CFE_EVS_EventType_ERROR,
                           "Corrupt data error (2): msg = %d, freq = %d, type = %d, rem = %d",
                           NextEntry->MessageIndex,
                           NextEntry->Frequency,
@@ -957,7 +957,7 @@ void SCH_ProcessNextEntry(SCH_ScheduleEntry_t *NextEntry, int32 EntryNumber)
             {
                 SCH_AppData.ScheduleActivityFailureCount++;
 
-                CFE_EVS_SendEvent(SCH_PACKET_SEND_EID, CFE_EVS_ERROR,
+                CFE_EVS_SendEvent(SCH_PACKET_SEND_EID, CFE_EVS_EventType_ERROR,
                                   "Activity error: slot = %d, entry = %d, err = 0x%08X",
                                   SCH_AppData.NextSlotNumber, (int)EntryNumber, (unsigned int)Status);
             }
@@ -1118,7 +1118,7 @@ int32 SCH_ValidateScheduleData(void *TableData)
         {
             TableResult = EntryResult;
 
-            CFE_EVS_SendEvent(SCH_SCHEDULE_TBL_ERR_EID, CFE_EVS_ERROR,
+            CFE_EVS_SendEvent(SCH_SCHEDULE_TBL_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Schedule tbl verify error - idx[%d] ena[%d] typ[%d] fre[%d] rem[%d] msg[%d] grp[0x%08X]",
                               (int)TableIndex, EnableState, Type, Frequency, Remainder, MessageIndex, (unsigned int)GroupData);
         }
@@ -1127,7 +1127,7 @@ int32 SCH_ValidateScheduleData(void *TableData)
     /*
     ** Send event describing results
     */
-    CFE_EVS_SendEvent(SCH_SCHEDULE_TABLE_EID, CFE_EVS_DEBUG,
+    CFE_EVS_SendEvent(SCH_SCHEDULE_TABLE_EID, CFE_EVS_EventType_DEBUG,
                       "Schedule table verify results -- good[%d] bad[%d] unused[%d]",
                       (int)GoodCount, (int)BadCount, (int)UnusedCount);
     /*
@@ -1237,7 +1237,7 @@ int32 SCH_ValidateMessageData(void *TableData)
         {
             TableResult = EntryResult;
 
-            CFE_EVS_SendEvent(SCH_MESSAGE_TBL_ERR_EID, CFE_EVS_ERROR,
+            CFE_EVS_SendEvent(SCH_MESSAGE_TBL_ERR_EID, CFE_EVS_EventType_ERROR,
                               "Message tbl verify err - idx[%d] mid[0x%X] len[%d] buf[%d]",
                               (int)TableIndex, MessageID, MessageLength, (int)BufferIndex);
         }
@@ -1246,7 +1246,7 @@ int32 SCH_ValidateMessageData(void *TableData)
     /*
     ** Send event describing results
     */
-    CFE_EVS_SendEvent(SCH_MESSAGE_TABLE_EID, CFE_EVS_DEBUG,
+    CFE_EVS_SendEvent(SCH_MESSAGE_TABLE_EID, CFE_EVS_EventType_DEBUG,
                       "Message tbl verify results - good[%d] bad[%d] unused[%d]",
                       (int)GoodCount, (int)BadCount, (int)UnusedCount);
     /*

@@ -281,7 +281,7 @@ void SCH_SendDiagTlmCmd(CFE_SB_MsgPtr_t MessagePtr);
 **                               (=FALSE). 
 **       
 *************************************************************************/
-void SCH_PostCommandResult(boolean GoodCommand);
+void SCH_PostCommandResult(bool GoodCommand);
 
 /************************************************************************/
 /** \brief Verifies the length of the specified message

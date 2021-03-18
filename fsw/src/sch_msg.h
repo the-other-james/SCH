@@ -208,10 +208,10 @@ typedef struct
     uint16   LastSyncMETSlot;                         /**< \schtlmmnemonic \SCH_LASTSYNCMETSLOT
                                                            \brief Slot number where Time Sync last occurred 
                                                            \details \ref SCHHK_LastSyncMETSlot "Click for more"  */
-    boolean  IgnoreMajorFrame;                        /**< \schtlmmnemonic \SCH_IGNOREMF
+    bool     IgnoreMajorFrame;                        /**< \schtlmmnemonic \SCH_IGNOREMF
                                                            \brief Major Frame too noisy to trust 
                                                            \details \ref SCHHK_IgnoreMajorFrame "Click for more"  */
-    boolean  UnexpectedMajorFrame;                    /**< \schtlmmnemonic \SCH_UNEXPCTDMAJORFRAME
+    bool     UnexpectedMajorFrame;                    /**< \schtlmmnemonic \SCH_UNEXPCTDMAJORFRAME
                                                            \brief Most Recent Major Frame signal was unexpected 
                                                            \details \ref SCHHK_UnexpectedMajorFrame "Click for more"  */
 } SCH_HkPacket_t;

@@ -227,9 +227,9 @@ typedef struct
     uint16                LastSyncMETSlot;               /**< \brief MET Slot # where Time Sync last occurred */
     uint16                SyncAttemptsLeft;              /**< \brief Timeout counter used when syncing Major Frame to MET */
     
-    boolean               IgnoreMajorFrame;              /**< \brief Major Frame too noisy to trust */
-    boolean               IgnoreMajorFrameMsgSent;       /**< \brief Major Frame Event Message has been sent */
-    boolean               UnexpectedMajorFrame;          /**< \brief Major Frame signal was unexpected */
+    bool                  IgnoreMajorFrame;              /**< \brief Major Frame too noisy to trust */
+    bool                  IgnoreMajorFrameMsgSent;       /**< \brief Major Frame Event Message has been sent */
+    bool                  UnexpectedMajorFrame;          /**< \brief Major Frame signal was unexpected */
 
 } SCH_AppData_t;
 

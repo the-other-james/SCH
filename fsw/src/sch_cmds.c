@@ -307,7 +307,7 @@ void SCH_ResetCmd(CFE_SB_MsgPtr_t MessagePtr)
 
 void SCH_EnableCmd(CFE_SB_MsgPtr_t MessagePtr)
 {
-    boolean         GoodCommand = FALSE;
+    bool            GoodCommand = false;
     SCH_EntryCmd_t *EnableCmd = NULL;
     uint16          SlotNumber = 0; 
     uint16          EntryNumber = 0;
@@ -350,7 +350,7 @@ void SCH_EnableCmd(CFE_SB_MsgPtr_t MessagePtr)
             /*
             ** Success
             */
-            GoodCommand = TRUE;
+            GoodCommand = true;
     
             SCH_AppData.ScheduleTable[TableIndex].EnableState = SCH_ENABLED;
             CFE_TBL_Modified(SCH_AppData.ScheduleTableHandle);
@@ -377,7 +377,7 @@ void SCH_EnableCmd(CFE_SB_MsgPtr_t MessagePtr)
 
 void SCH_DisableCmd(CFE_SB_MsgPtr_t MessagePtr)
 {
-    boolean         GoodCommand = FALSE;
+    bool            GoodCommand = false;
     SCH_EntryCmd_t *DisableCmd  = NULL;
     uint16          SlotNumber  = 0;
     uint16          EntryNumber = 0;
@@ -420,7 +420,7 @@ void SCH_DisableCmd(CFE_SB_MsgPtr_t MessagePtr)
             /*
             ** Success
             */
-            GoodCommand = TRUE;
+            GoodCommand = true;
     
             SCH_AppData.ScheduleTable[TableIndex].EnableState = SCH_DISABLED;
             CFE_TBL_Modified(SCH_AppData.ScheduleTableHandle);
@@ -447,7 +447,7 @@ void SCH_DisableCmd(CFE_SB_MsgPtr_t MessagePtr)
 
 void SCH_EnableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
 {
-    boolean              GoodCommand = FALSE;
+    bool                 GoodCommand = false;
     uint32               TblGroupNumber = 0;
     uint32               TblMultiGroup = 0;
     int32                LoopCount = 0;
@@ -511,7 +511,7 @@ void SCH_EnableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
                 CFE_EVS_SendEvent(SCH_ENA_GRP_CMD_EID, CFE_EVS_DEBUG,
                                   "ENABLE GROUP command: match count = %d",
                                   (int)MatchCount);
-                GoodCommand = TRUE;
+                GoodCommand = true;
             }
             else
             {
@@ -538,7 +538,7 @@ void SCH_EnableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
 
 void SCH_DisableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
 {
-    boolean              GoodCommand = FALSE;
+    bool                 GoodCommand = false;
     uint32               TblGroupNumber = 0;
     uint32               TblMultiGroup = 0;
     int32                LoopCount = 0;
@@ -602,7 +602,7 @@ void SCH_DisableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
                 CFE_EVS_SendEvent(SCH_DIS_GRP_CMD_EID, CFE_EVS_DEBUG,
                                   "DISABLE GROUP command: match count = %d",
                                   (int)MatchCount);
-                GoodCommand = TRUE;
+                GoodCommand = true;
             }
             else
             {
@@ -629,14 +629,14 @@ void SCH_DisableGroupCmd(CFE_SB_MsgPtr_t MessagePtr)
 
 void SCH_EnableSyncCmd(CFE_SB_MsgPtr_t MessagePtr)
 {
-    boolean   GoodCommand = FALSE;
+    bool      GoodCommand = false;
 
     if(SCH_VerifyCmdLength(MessagePtr, sizeof(SCH_NoArgsCmd_t)) == SCH_SUCCESS)
     {
-        GoodCommand = TRUE;
+        GoodCommand = true;
         
-        SCH_AppData.IgnoreMajorFrame = FALSE;
-        SCH_AppData.UnexpectedMajorFrame = FALSE;
+        SCH_AppData.IgnoreMajorFrame = false;
+        SCH_AppData.UnexpectedMajorFrame = false;
         SCH_AppData.ConsecutiveNoisyFrameCounter = 0;
         
         CFE_EVS_SendEvent(SCH_ENA_SYNC_CMD_EID, CFE_EVS_DEBUG,
@@ -661,7 +661,7 @@ void SCH_EnableSyncCmd(CFE_SB_MsgPtr_t MessagePtr)
 
 void SCH_SendDiagTlmCmd(CFE_SB_MsgPtr_t MessagePtr)
 {
-    boolean              GoodCommand = FALSE;
+    bool                 GoodCommand = false;
     uint32               TblIndex = 0;
     uint32               WordIndex = 0;
     uint32               BitIndex = 0;
@@ -669,7 +669,7 @@ void SCH_SendDiagTlmCmd(CFE_SB_MsgPtr_t MessagePtr)
 
     if(SCH_VerifyCmdLength(MessagePtr, sizeof(SCH_NoArgsCmd_t)) == SCH_SUCCESS)
     {
-        GoodCommand = TRUE;
+        GoodCommand = true;
         
         /* Zero out the previous entry states */
         CFE_PSP_MemSet(&SCH_AppData.DiagPacket.EntryStates[0], 0x0, SCH_NUM_STATUS_BYTES_REQD);
@@ -803,7 +803,7 @@ int32 SCH_VerifyCmdLength (CFE_SB_MsgPtr_t MessagePtr, uint32 ExpectedLength)
 ** NOTE: For complete prolog information, see above
 ********************************************************************/
 
-void SCH_PostCommandResult(boolean GoodCommand)
+void SCH_PostCommandResult(bool GoodCommand)
 {
     if (GoodCommand)
     {
